@@ -43,121 +43,54 @@
         }
     </style>
 </head>
-<body class="bg-black text-white h-screen">
-    <div class="flex h-full">
-        <!-- Left Side - Chat Interface -->
-        <div class="w-1/3 border-r border-gray-800 flex flex-col">
-            <div class="p-4 border-b border-gray-800">
-                <h1 class="text-xl font-bold text-primary-500">Website Generator</h1>
-            </div>
-            
-            <!-- Chat Messages -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 scrollbar-custom">
-                <!-- Messages will be inserted here -->
-            </div>
-            
-            <!-- Input Area -->
-            <div class="p-4 border-t border-gray-800">
-                <form id="chat-form" class="flex gap-2">
-                    <textarea 
-                        id="user-input" 
-                        class="flex-1 bg-gray-900 border border-gray-700 rounded-lg p-2 focus:outline-none focus:border-primary-500 resize-none"
-                        placeholder="Describe your website..."
-                        rows="3"
-                    ></textarea>
-                    <button 
-                        type="submit" 
-                        class="bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-lg transition-colors"
-                    >
-                        Generate
-                    </button>
-                </form>
-            </div>
+<body class="bg-black text-white h-screen flex flex-col items-center justify-center">
+    <!-- Input Area -->
+    <div class="w-full max-w-lg p-4" style="margin-top: 100px;">
+        <form id="prompt-form" class="flex flex-col gap-4">
+            <textarea 
+                id="user-input" 
+                class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 focus:outline-none focus:border-primary-500 resize-none"
+                placeholder="Describe your website..."
+                rows="3"
+            ></textarea>
+            <button 
+                type="submit" 
+                class="bg-primary-600 hover:bg-primary-700 px-6 py-3 rounded-lg transition-colors text-center"
+            >
+                Generate
+            </button>
+        </form>
+    </div>
+
+    <!-- Preview and Code Toggle -->
+    <div class="w-full h-full flex flex-col md:flex-row">
+        <!-- Preview Container -->
+        <div id="preview-container" class="flex-1 bg-white p-4 hidden">
+            <iframe id="preview-frame" class="w-full h-full"></iframe>
         </div>
-        
-        <!-- Right Side - Code Editor and Preview -->
-        <div class="w-2/3 flex flex-col">
-            <!-- File Tabs -->
-            <div class="flex border-b border-gray-800">
-                <button 
-                    data-file="html"
-                    class="flex-1 p-4 text-center hover:bg-gray-900 border-b-2 border-primary-500 file-tab"
-                >
-                    HTML
-                </button>
-                <button 
-                    data-file="css"
-                    class="flex-1 p-4 text-center hover:bg-gray-900 file-tab"
-                >
-                    CSS
-                </button>
-                <button 
-                    data-file="js"
-                    class="flex-1 p-4 text-center hover:bg-gray-900 file-tab"
-                >
-                    JavaScript
-                </button>
-                <button 
-                    data-file="preview"
-                    class="flex-1 p-4 text-center hover:bg-gray-900 file-tab"
-                >
-                    Preview
-                </button>
-            </div>
-            
-            <!-- Editor Containers -->
-            <div id="html-editor" class="flex-1 file-content"></div>
-            <div id="css-editor" class="flex-1 hidden file-content"></div>
-            <div id="js-editor" class="flex-1 hidden file-content"></div>
-            
-            <!-- Preview Container -->
-            <div id="preview-container" class="hidden flex-1 bg-white">
-                <iframe id="preview-frame" class="w-full h-full"></iframe>
-            </div>
+
+        <!-- Code Editor Container -->
+        <div id="code-container" class="flex-1 hidden">
+            <div id="html-editor" class="h-full"></div>
         </div>
     </div>
 
+    <!-- Toggle Button -->
+    <div id="toggle-buttons" class="absolute bottom-4 right-4 hidden">
+        <button id="toggle-code" class="bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-lg transition-colors">
+            Toggle Code
+        </button>
+    </div>
+
     <script type="text/javascript">
-        // Initialize Ace editors
-        const editors = {
-            html: ace.edit("html-editor"),
-            css: ace.edit("css-editor"),
-            js: ace.edit("js-editor")
-        };
-
-        // Configure editors
-        Object.entries(editors).forEach(([type, editor]) => {
-            editor.setTheme("ace/theme/monokai");
-            editor.session.setMode(`ace/mode/${type}`);
-            editor.setShowPrintMargin(false);
-            editor.setOptions({
-                fontSize: "14px",
-                enableLiveAutocompletion: true
-            });
-        });
-
-        // Handle file tab switching
-        document.querySelectorAll('.file-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Update tab styles
-                document.querySelectorAll('.file-tab').forEach(t => {
-                    t.classList.remove('border-b-2', 'border-primary-500');
-                });
-                tab.classList.add('border-b-2', 'border-primary-500');
-
-                // Show/hide content
-                const fileType = tab.dataset.file;
-                document.querySelectorAll('.file-content, #preview-container').forEach(content => {
-                    content.classList.add('hidden');
-                });
-
-                if (fileType === 'preview') {
-                    document.getElementById('preview-container').classList.remove('hidden');
-                    updatePreview();
-                } else {
-                    document.getElementById(`${fileType}-editor`).classList.remove('hidden');
-                }
-            });
+        // Initialize Ace editor
+        const editor = ace.edit("html-editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/html");
+        editor.setShowPrintMargin(false);
+        editor.setOptions({
+            fontSize: "14px",
+            enableLiveAutocompletion: true
         });
 
         // Function to update preview
@@ -170,11 +103,9 @@
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <script src="https://cdn.tailwindcss.com"><\/script>
-                    <style>${editors.css.getValue()}<\/style>
                 </head>
                 <body>
-                    ${editors.html.getValue()}
-                    <script>${editors.js.getValue()}<\/script>
+                    ${editor.getValue()}
                 </body>
                 </html>
             `;
@@ -184,15 +115,13 @@
         }
 
         // Handle form submission
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+        document.getElementById('prompt-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const userInput = document.getElementById('user-input');
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Add user message to chat
-            addMessage('user', message);
             userInput.value = '';
 
             try {
@@ -210,42 +139,43 @@
                     throw new Error(data.error);
                 }
 
-                // Update editors with generated code
-                editors.html.setValue(data.files.html, -1);
-                editors.css.setValue(data.files.css, -1);
-                editors.js.setValue(data.files.js, -1);
+                // Update editor with generated code
+                editor.setValue(data.files.html, -1);
+
+                // Show preview container
+                document.getElementById('preview-container').classList.remove('hidden');
+                document.getElementById('code-container').classList.add('hidden');
+
+                // Show toggle buttons
+                document.getElementById('toggle-buttons').classList.remove('hidden');
 
                 // Update preview
                 updatePreview();
 
-                addMessage('assistant', 'Website generated! You can view and edit the code in the editors.');
-
             } catch (error) {
-                addMessage('error', `Error: ${error.message}`);
+                console.error('Error:', error.message);
             }
         });
 
-        function addMessage(type, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `mb-4 p-3 rounded-lg ${
-                type === 'user' ? 'bg-primary-900 ml-8' :
-                type === 'assistant' ? 'bg-gray-900 mr-8' :
-                type === 'error' ? 'bg-red-900 mr-8' :
-                'bg-gray-800 mr-8'
-            }`;
-            messageDiv.textContent = content;
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        // Toggle between preview and code
+        document.getElementById('toggle-code').addEventListener('click', () => {
+            const previewContainer = document.getElementById('preview-container');
+            const codeContainer = document.getElementById('code-container');
 
-        // Add event listeners for real-time preview updates
-        Object.values(editors).forEach(editor => {
-            editor.session.on('change', () => {
-                if (!document.getElementById('preview-container').classList.contains('hidden')) {
-                    updatePreview();
-                }
-            });
+            if (previewContainer.classList.contains('hidden')) {
+                previewContainer.classList.remove('hidden');
+                codeContainer.classList.add('hidden');
+            } else {
+                previewContainer.classList.add('hidden');
+                codeContainer.classList.remove('hidden');
+            }
+        });
+
+        // Add event listener for real-time preview updates
+        editor.session.on('change', () => {
+            if (!document.getElementById('preview-container').classList.contains('hidden')) {
+                updatePreview();
+            }
         });
     </script>
 </body>
