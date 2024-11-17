@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Generator</title>
+    <title>ByteCrafter - Website Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.5/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.5/mode-html.js"></script>
@@ -22,6 +22,21 @@
                             700: '#442799',
                             600: '#512DB3',
                             500: '#5D33CC',
+                            400: '#7044E3',
+                            300: '#8755F0',
+                            200: '#A269FF',
+                            100: '#BE83FF',
+                        },
+                        secondary: {
+                            900: '#1D2939',
+                            800: '#243447',
+                            700: '#2E3E50',
+                            600: '#394959',
+                            500: '#445462',
+                            400: '#506070',
+                            300: '#5C6C7C',
+                            200: '#6A7B8B',
+                            100: '#7A8B9B',
                         }
                     }
                 }
@@ -31,67 +46,149 @@
     <style type="text/tailwind">
         @layer utilities {
             .scrollbar-custom::-webkit-scrollbar {
-                width: 4px;
+                width: 8px;
             }
             .scrollbar-custom::-webkit-scrollbar-track {
-                background: #1a1a1a;
+                background: #f0f0f0;
             }
             .scrollbar-custom::-webkit-scrollbar-thumb {
-                background: #4a4a4a;
-                border-radius: 2px;
+                background: #ccc;
+                border-radius: 4px;
+            }
+            .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+                background: #999;
             }
         }
     </style>
 </head>
-<body class="bg-black text-white h-screen flex flex-col items-center justify-center">
-    <!-- Input Area -->
-    <div class="w-full max-w-lg p-4" style="margin-top: 100px;">
-        <form id="prompt-form" class="flex flex-col gap-4">
-            <textarea 
-                id="user-input" 
-                class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 focus:outline-none focus:border-primary-500 resize-none"
-                placeholder="Describe your website..."
-                rows="3"
-            ></textarea>
-            <button 
-                type="submit" 
-                class="bg-primary-600 hover:bg-primary-700 px-6 py-3 rounded-lg transition-colors text-center"
-            >
-                Generate
-            </button>
-        </form>
-    </div>
-
-    <!-- Preview and Code Toggle -->
-    <div class="w-full h-full flex flex-col md:flex-row">
-        <!-- Preview Container -->
-        <div id="preview-container" class="flex-1 bg-white p-4 hidden">
-            <iframe id="preview-frame" class="w-full h-full"></iframe>
+<body class="bg-gray-50 h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="h-8 w-8 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" />
+                </svg>
+                <h1 class="text-2xl font-bold text-primary-500">ByteCrafter</h1>
+            </div>
+            <div class="flex gap-4">
+                <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
         </div>
+    </header>
 
-        <!-- Code Editor Container -->
-        <div id="code-container" class="flex-1 hidden">
-            <div id="html-editor" class="h-full"></div>
-        </div>
-    </div>
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-6 py-8 flex flex-col gap-8">
+        <!-- Input Section -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <form id="prompt-form" class="space-y-4">
+                <div class="space-y-2">
+                    <label for="user-input" class="block text-sm font-medium text-gray-700">Describe your website</label>
+                    <div class="relative">
+                        <textarea 
+                            id="user-input" 
+                            class="w-full h-32 bg-gray-50 border border-gray-200 rounded-lg p-4 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 resize-none"
+                            placeholder="Example: Create a landing page for a coffee shop with a hero section, about us, menu, and contact form..."
+                        ></textarea>
+                        <div class="absolute bottom-3 right-3 flex gap-2">
+                            <button id="clear-prompt" type="button" class="text-gray-400 hover:text-gray-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button 
+                        type="submit" 
+                        class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg transition-colors text-center flex items-center gap-2"
+                    >
+                        <span>Generate Website</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </section>
 
-    <!-- Toggle Button -->
-    <div id="toggle-buttons" class="absolute bottom-4 right-4 hidden">
-        <button id="toggle-code" class="bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-lg transition-colors">
-            Toggle Code
-        </button>
-    </div>
+        <!-- Output Section -->
+        <section id="output-section" class="hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Tabs -->
+                <div class="border-b border-gray-200">
+                    <div class="flex">
+                        <button 
+                            id="preview-tab"
+                            class="px-6 py-3 text-sm font-medium border-b-2 border-primary-500 text-primary-600 flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clip-rule="evenodd" />
+                            </svg>
+                            Preview
+                        </button>
+                        <button 
+                            id="html-tab"
+                            class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            HTML
+                        </button>
+                        <button 
+                            id="css-tab"
+                            class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center gap-2"
+                        >
+                            CSS
+                        </button>
+                        <button 
+                            id="js-tab"
+                            class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center gap-2"
+                        >
+                            JavaScript
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="h-[600px]">
+                    <div id="preview-container" class="w-full h-full">
+                        <iframe id="preview-frame" class="w-full h-full"></iframe>
+                    </div>
+                    <div id="html-editor" class="w-full h-full hidden"></div>
+                    <div id="css-editor" class="w-full h-full hidden"></div>
+                    <div id="js-editor" class="w-full h-full hidden"></div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script type="text/javascript">
-        // Initialize Ace editor
-        const editor = ace.edit("html-editor");
-        editor.setTheme("ace/theme/monokai");
-        editor.session.setMode("ace/mode/html");
-        editor.setShowPrintMargin(false);
-        editor.setOptions({
-            fontSize: "14px",
-            enableLiveAutocompletion: true
+        // Initialize Ace editors
+        const htmlEditor = ace.edit("html-editor");
+        const cssEditor = ace.edit("css-editor");
+        const jsEditor = ace.edit("js-editor");
+
+        // Configure editors
+        [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+            editor.setTheme("ace/theme/monokai");
+            editor.setShowPrintMargin(false);
+            editor.setOptions({
+                fontSize: "14px",
+                enableLiveAutocompletion: true
+            });
         });
+
+        // Set specific modes
+        htmlEditor.session.setMode("ace/mode/html");
+        cssEditor.session.setMode("ace/mode/css");
+        jsEditor.session.setMode("ace/mode/javascript");
 
         // Function to update preview
         function updatePreview() {
@@ -103,13 +200,15 @@
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <script src="https://cdn.tailwindcss.com"><\/script>
+                    <style>${cssEditor.getValue()}</style>
                 </head>
                 <body>
-                    ${editor.getValue()}
+                    ${htmlEditor.getValue()}
+                    <script>${jsEditor.getValue()}<\/script>
                 </body>
                 </html>
             `;
-            
+
             const blob = new Blob([combinedCode], { type: 'text/html' });
             previewFrame.src = URL.createObjectURL(blob);
         }
@@ -117,12 +216,10 @@
         // Handle form submission
         document.getElementById('prompt-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const userInput = document.getElementById('user-input');
             const message = userInput.value.trim();
             if (!message) return;
-
-            userInput.value = '';
 
             try {
                 const response = await fetch('/api/generate', {
@@ -139,15 +236,13 @@
                     throw new Error(data.error);
                 }
 
-                // Update editor with generated code
-                editor.setValue(data.files.html, -1);
+                // Update editors with generated code
+                htmlEditor.setValue(data.files.html || '', -1);
+                cssEditor.setValue(data.files.css || '', -1);
+                jsEditor.setValue(data.files.javascript || '', -1);
 
-                // Show preview container
-                document.getElementById('preview-container').classList.remove('hidden');
-                document.getElementById('code-container').classList.add('hidden');
-
-                // Show toggle buttons
-                document.getElementById('toggle-buttons').classList.remove('hidden');
+                // Show output section
+                document.getElementById('output-section').classList.remove('hidden');
 
                 // Update preview
                 updatePreview();
@@ -157,26 +252,126 @@
             }
         });
 
-        // Toggle between preview and code
-        document.getElementById('toggle-code').addEventListener('click', () => {
-            const previewContainer = document.getElementById('preview-container');
-            const codeContainer = document.getElementById('code-container');
+        // Clear prompt button
+        document.getElementById('clear-prompt').addEventListener('click', () => {
+            document.getElementById('user-input').value = '';
+        });
 
-            if (previewContainer.classList.contains('hidden')) {
-                previewContainer.classList.remove('hidden');
-                codeContainer.classList.add('hidden');
+        // Tab switching
+        const tabs = ['preview', 'html', 'css', 'js'];
+        tabs.forEach(tab => {
+            document.getElementById(`${tab}-tab`)?.addEventListener('click', () => {
+                // Hide all containers
+                document.getElementById('preview-container').classList.add('hidden');
+                document.getElementById('html-editor').classList.add('hidden');
+                document.getElementById('css-editor').classList.add('hidden');
+                document.getElementById('js-editor').classList.add('hidden');
+
+                // Show selected container
+                const container = tab === 'preview' ? 'preview-container' : `${tab}-editor`;
+                document.getElementById(container).classList.remove('hidden');
+
+                // Update tab styles
+                tabs.forEach(t => {
+                    const tabElement = document.getElementById(`${t}-tab`);
+                    if (tabElement) {
+                        if (t === tab) {
+                            tabElement.classList.add('border-primary-500', 'text-primary-600');
+                            tabElement.classList.remove('border-transparent', 'text-gray-500');
+                        } else {
+                           tabElement.classList.remove('border-primary-500', 'text-primary-600');
+                            tabElement.classList.add('border-transparent', 'text-gray-500');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Theme toggle (dark/light mode)
+        let isDark = false;
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            isDark = !isDark;
+            document.documentElement.classList.toggle('dark');
+            const theme = isDark ? "ace/theme/monokai" : "ace/theme/chrome";
+            
+            // Update theme for all editors
+            [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+                editor.setTheme(theme);
+            });
+
+            // Update theme toggle icon
+            const toggleButton = document.getElementById('theme-toggle');
+            if (isDark) {
+                toggleButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                `;
             } else {
-                previewContainer.classList.add('hidden');
-                codeContainer.classList.remove('hidden');
+                toggleButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                `;
             }
         });
 
-        // Add event listener for real-time preview updates
-        editor.session.on('change', () => {
-            if (!document.getElementById('preview-container').classList.contains('hidden')) {
-                updatePreview();
-            }
+        // Add event listeners for real-time preview updates
+        [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+            editor.session.on('change', () => {
+                if (!document.getElementById('preview-container').classList.contains('hidden')) {
+                    updatePreview();
+                }
+            });
         });
+
+        // Add file size indicators
+        function updateFileSizeIndicator(editor, tabId) {
+            const size = new Blob([editor.getValue()]).size;
+            const tab = document.getElementById(tabId);
+            const sizeText = size > 1024 ? `${(size/1024).toFixed(1)}KB` : `${size}B`;
+            const existingSize = tab.querySelector('.file-size');
+            if (existingSize) {
+                existingSize.textContent = sizeText;
+            } else {
+                const sizeSpan = document.createElement('span');
+                sizeSpan.className = 'file-size text-xs text-gray-400 ml-2';
+                sizeSpan.textContent = sizeText;
+                tab.appendChild(sizeSpan);
+            }
+        }
+
+        // Update file sizes on change
+        [
+            { editor: htmlEditor, tabId: 'html-tab' },
+            { editor: cssEditor, tabId: 'css-tab' },
+            { editor: jsEditor, tabId: 'js-tab' }
+        ].forEach(({ editor, tabId }) => {
+            editor.session.on('change', () => {
+                updateFileSizeIndicator(editor, tabId);
+            });
+        });
+
+        // Add footer with ByteCrafter branding
+        const footer = document.createElement('footer');
+        footer.className = 'bg-white border-t border-gray-200 py-4';
+        footer.innerHTML = `
+            <div class="container mx-auto px-6 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-500">Powered by</span>
+                    <div class="flex items-center gap-1">
+                        <svg class="h-5 w-5 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" />
+                        </svg>
+                        <span class="font-bold text-primary-500">ByteCrafter</span>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500">
+                    © ${new Date().getFullYear()} ByteCrafter. All rights reserved.
+                </div>
+            </div>
+        `;
+        document.body.appendChild(footer);
     </script>
 </body>
 </html>
